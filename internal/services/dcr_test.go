@@ -290,9 +290,10 @@ func TestDCR_AdminOnly_Rejected(t *testing.T) {
 	}
 }
 
-// Matrix: 18.8 — DCR approved_redirects uses exact match only, no glob/wildcards
-func TestDCR_ApprovedRedirects_NoGlobMatching(t *testing.T) {
-	// Configure with an exact URI — ensure glob patterns DON'T match.
+// Matrix: 18.8 — exact entries do not implicitly enable glob matching.
+func TestDCR_ApprovedRedirects_NoImplicitGlobMatching(t *testing.T) {
+	// Configure with an exact URI — ensure a wildcard-shaped candidate does
+	// not match an exact entry.
 	svc, _ := newDCRService(t, "approved_redirects", []string{
 		"https://app.example.com/callback",
 	})
@@ -316,9 +317,40 @@ func TestDCR_ApprovedRedirects_NoGlobMatching(t *testing.T) {
 				RedirectURIs: []string{tt.uri},
 			})
 			if err == nil {
-				t.Errorf("redirect_uri %q should be rejected (exact match only)", tt.uri)
+				t.Errorf("redirect_uri %q should be rejected (exact entry)", tt.uri)
 			}
 		})
+	}
+}
+
+func TestDCR_ApprovedRedirects_TerminalPathWildcard(t *testing.T) {
+	svc, _ := newDCRService(t, "approved_redirects", []string{
+		"https://chatgpt.com/connector/oauth/*",
+	})
+	ctx := context.Background()
+
+	for _, uri := range []string{"https://chatgpt.com/connector/oauth/7GEMN67TZ5Pb"} {
+		_, err := svc.RegisterClient(ctx, input.RegisterClientRequest{
+			ClientName:   "ChatGPT Client",
+			RedirectURIs: []string{uri},
+		})
+		if err != nil {
+			t.Fatalf("register approved callback: %v", err)
+		}
+	}
+
+	for _, uri := range []string{
+		"https://chatgpt.com/connector/oauth/a/b",
+		"https://chatgpt.com/connector/oauth/7GEMN67TZ5Pb?next=evil",
+		"https://evil.example.com/connector/oauth/7GEMN67TZ5Pb",
+	} {
+		_, err := svc.RegisterClient(ctx, input.RegisterClientRequest{
+			ClientName:   "Invalid ChatGPT Client",
+			RedirectURIs: []string{uri},
+		})
+		if err == nil {
+			t.Fatalf("redirect_uri %q should be rejected", uri)
+		}
 	}
 }
 
@@ -380,4 +412,3 @@ func TestDCR_GrantTypeEnabled_Accepted(t *testing.T) {
 		t.Error("expected client_id in response")
 	}
 }
-

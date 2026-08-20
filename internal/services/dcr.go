@@ -241,12 +241,11 @@ func (s *DCRService) enforceMode(req input.RegisterClientRequest) error {
 	}
 }
 
-// matchesApprovedPattern checks if a redirect URI matches any of the approved URIs.
-// Exact string match only — no wildcards, no prefix matching, no normalization.
-// This is a security invariant per RFC 9700 / OAuth Security BCP.
+// matchesApprovedPattern checks if a redirect URI matches an approved URI or
+// a terminal single-path-segment wildcard configured for a known provider.
 func (s *DCRService) matchesApprovedPattern(uri string) bool {
 	for _, approved := range s.dcrCfg.ApprovedRedirects {
-		if uri == approved {
+		if approvedRedirectMatches(uri, approved) {
 			return true
 		}
 	}

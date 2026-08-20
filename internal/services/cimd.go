@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"slices"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -186,9 +185,13 @@ func (s *CIMDService) VerifyCIMD(ctx context.Context, clientID string) (*client.
 	return c, nil
 }
 
-// matchesApprovedRedirect checks if a redirect URI matches any of the approved URIs.
-// Exact string match only — no wildcards, no prefix matching, no normalization.
-// Mirrors DCRService.matchesApprovedPattern.
+// matchesApprovedRedirect checks if a redirect URI matches an approved URI or
+// a terminal single-path-segment wildcard configured for a known provider.
 func (s *CIMDService) matchesApprovedRedirect(uri string) bool {
-	return slices.Contains(s.dcrMode.ApprovedRedirects, uri)
+	for _, approved := range s.dcrMode.ApprovedRedirects {
+		if approvedRedirectMatches(uri, approved) {
+			return true
+		}
+	}
+	return false
 }
