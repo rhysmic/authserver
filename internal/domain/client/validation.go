@@ -72,6 +72,14 @@ func ValidateCreateParams(p CreateParams, enabledGrants []string) error {
 			errs = append(errs, err.Error())
 		}
 	}
+	if p.TokenEndpointAuthMethod == "private_key_jwt" {
+		if err := ValidateJWKSURI(p.JWKSURI); err != nil {
+			errs = append(errs, err.Error())
+		}
+		if p.TokenEndpointAuthSigningAlg != "" && !isClientAssertionAlgorithm(p.TokenEndpointAuthSigningAlg) {
+			errs = append(errs, fmt.Sprintf("unsupported token_endpoint_auth_signing_alg: %q", p.TokenEndpointAuthSigningAlg))
+		}
+	}
 
 	if len(p.AgentDescription) > maxAgentDescriptionLength {
 		errs = append(errs, fmt.Sprintf("agent_description exceeds %d characters", maxAgentDescriptionLength))
@@ -189,10 +197,33 @@ func ValidateResponseType(rt string) error {
 // ValidateAuthMethod checks the token endpoint auth method.
 func ValidateAuthMethod(method string) error {
 	switch method {
-	case "none", "client_secret_basic", "client_secret_post":
+	case "none", "client_secret_basic", "client_secret_post", "private_key_jwt":
 		return nil
 	default:
 		return fmt.Errorf("unsupported token_endpoint_auth_method: %q", method)
+	}
+}
+
+// ValidateJWKSURI validates the public key endpoint used by private_key_jwt.
+// Client metadata is fetched over HTTPS and the runtime verifier applies its
+// own SSRF-safe transport when it retrieves the JWKS document.
+func ValidateJWKSURI(raw string) error {
+	parsed, err := url.Parse(raw)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" {
+		return fmt.Errorf("jwks_uri must be an https URL")
+	}
+	if parsed.User != nil || parsed.Fragment != "" {
+		return fmt.Errorf("jwks_uri must not contain userinfo or a fragment")
+	}
+	return nil
+}
+
+func isClientAssertionAlgorithm(alg string) bool {
+	switch strings.ToUpper(strings.TrimSpace(alg)) {
+	case "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512":
+		return true
+	default:
+		return false
 	}
 }
 

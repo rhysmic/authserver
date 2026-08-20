@@ -101,14 +101,16 @@ func (s *AdminService) CreateClient(ctx context.Context, req input.CreateClientR
 
 	// Apply defaults and validate.
 	params := dclient.CreateParams{
-		Name:                    req.Name,
-		RedirectURIs:            req.RedirectURIs,
-		GrantTypes:              req.GrantTypes,
-		ResponseTypes:           req.ResponseTypes,
-		TokenEndpointAuthMethod: req.TokenEndpointAuthMethod,
-		RegistrationSource:      dclient.SourceAdmin,
-		IsAgent:                 req.IsAgent,
-		AgentDescription:        req.AgentDescription,
+		Name:                        req.Name,
+		RedirectURIs:                req.RedirectURIs,
+		GrantTypes:                  req.GrantTypes,
+		ResponseTypes:               req.ResponseTypes,
+		TokenEndpointAuthMethod:     req.TokenEndpointAuthMethod,
+		JWKSURI:                     req.JWKSURI,
+		TokenEndpointAuthSigningAlg: req.TokenEndpointAuthSigningAlg,
+		RegistrationSource:          dclient.SourceAdmin,
+		IsAgent:                     req.IsAgent,
+		AgentDescription:            req.AgentDescription,
 	}
 	params.Defaults()
 
@@ -120,24 +122,26 @@ func (s *AdminService) CreateClient(ctx context.Context, req input.CreateClientR
 
 	now := time.Now().UTC()
 	c := &dclient.Client{
-		ID:                      crypto.GenerateClientID(),
-		Name:                    params.Name,
-		RedirectURIs:            params.RedirectURIs,
-		GrantTypes:              params.GrantTypes,
-		ResponseTypes:           params.ResponseTypes,
-		TokenEndpointAuthMethod: params.TokenEndpointAuthMethod,
-		Status:                  dclient.StatusActive,
-		RegistrationSource:      dclient.SourceAdmin,
-		Scope:                   req.Scope,
-		IsAgent:                 params.IsAgent,
-		AgentDescription:        params.AgentDescription,
-		IssuedAt:                now,
-		UpdatedAt:               now,
+		ID:                          crypto.GenerateClientID(),
+		Name:                        params.Name,
+		RedirectURIs:                params.RedirectURIs,
+		GrantTypes:                  params.GrantTypes,
+		ResponseTypes:               params.ResponseTypes,
+		TokenEndpointAuthMethod:     params.TokenEndpointAuthMethod,
+		JWKSURI:                     params.JWKSURI,
+		TokenEndpointAuthSigningAlg: params.TokenEndpointAuthSigningAlg,
+		Status:                      dclient.StatusActive,
+		RegistrationSource:          dclient.SourceAdmin,
+		Scope:                       req.Scope,
+		IsAgent:                     params.IsAgent,
+		AgentDescription:            params.AgentDescription,
+		IssuedAt:                    now,
+		UpdatedAt:                   now,
 	}
 
 	// Generate secret for confidential clients.
 	var plainSecret string
-	if params.TokenEndpointAuthMethod != "none" {
+	if c.RequiresClientSecret() {
 		plainSecret = crypto.GenerateClientSecret()
 		hash, err := crypto.HashClientSecret(plainSecret)
 		if err != nil {

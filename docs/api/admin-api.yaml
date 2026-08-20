@@ -1365,6 +1365,8 @@ components:
         issued_at:
           type: string
           format: date-time
+        jwks_uri:
+          type: string
         name:
           type: string
         redirect_uris:
@@ -1380,6 +1382,8 @@ components:
         status:
           type: string
         token_endpoint_auth_method:
+          type: string
+        token_endpoint_auth_signing_alg:
           type: string
         updated_at:
           type: string
@@ -1470,6 +1474,8 @@ components:
           type: array
           items:
             type: string
+        jwks_uri:
+          type: string
         redirect_uris:
           type: array
           items:
@@ -1481,6 +1487,8 @@ components:
         scope:
           type: string
         token_endpoint_auth_method:
+          type: string
+        token_endpoint_auth_signing_alg:
           type: string
       required:
         - agent
@@ -1511,6 +1519,8 @@ components:
             type: string
         issued_at:
           type: string
+        jwks_uri:
+          type: string
         redirect_uris:
           type: array
           items:
@@ -1526,6 +1536,8 @@ components:
         status:
           type: string
         token_endpoint_auth_method:
+          type: string
+        token_endpoint_auth_signing_alg:
           type: string
       required:
         - client_id

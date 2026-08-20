@@ -13,26 +13,31 @@ type DCRPort interface {
 
 // RegisterClientRequest contains the parameters from POST /oauth/register.
 type RegisterClientRequest struct {
-	RedirectURIs            []string `json:"redirect_uris"`
-	ClientName              string   `json:"client_name"`
-	GrantTypes              []string `json:"grant_types"`
-	ResponseTypes           []string `json:"response_types"`
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
-	Agent                   bool     `json:"agent,omitempty"`             // Authplane extension: mark as agent client
-	AgentDescription        string   `json:"agent_description,omitempty"` // Authplane extension: human-readable description
+	RedirectURIs                      []string `json:"redirect_uris"`
+	ClientName                        string   `json:"client_name"`
+	GrantTypes                        []string `json:"grant_types"`
+	ResponseTypes                     []string `json:"response_types"`
+	TokenEndpointAuthMethod           string   `json:"token_endpoint_auth_method"`
+	JWKSURI                           string   `json:"jwks_uri,omitempty"`
+	TokenEndpointAuthSigningAlg       string   `json:"token_endpoint_auth_signing_alg,omitempty"`
+	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported,omitempty"`
+	Agent                             bool     `json:"agent,omitempty"`             // Authplane extension: mark as agent client
+	AgentDescription                  string   `json:"agent_description,omitempty"` // Authplane extension: human-readable description
 }
 
 // RegisterClientResponse is the RFC 7591 registration response.
 type RegisterClientResponse struct {
-	ClientID                string   `json:"client_id"`
-	ClientSecret            string   `json:"client_secret,omitempty"`
-	ClientIDIssuedAt        int64    `json:"client_id_issued_at"`
-	ClientSecretExpiresAt   *int64   `json:"client_secret_expires_at,omitempty"`
-	RedirectURIs            []string `json:"redirect_uris"`
-	ClientName              string   `json:"client_name"`
-	GrantTypes              []string `json:"grant_types"`
-	ResponseTypes           []string `json:"response_types"`
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
-	Agent                   bool     `json:"agent,omitempty"`             // Authplane extension
-	AgentDescription        string   `json:"agent_description,omitempty"` // Authplane extension
+	ClientID                    string   `json:"client_id"`
+	ClientSecret                string   `json:"client_secret,omitempty"`
+	ClientIDIssuedAt            int64    `json:"client_id_issued_at"`
+	ClientSecretExpiresAt       *int64   `json:"client_secret_expires_at,omitempty"`
+	RedirectURIs                []string `json:"redirect_uris"`
+	ClientName                  string   `json:"client_name"`
+	GrantTypes                  []string `json:"grant_types"`
+	ResponseTypes               []string `json:"response_types"`
+	TokenEndpointAuthMethod     string   `json:"token_endpoint_auth_method"`
+	JWKSURI                     string   `json:"jwks_uri,omitempty"`
+	TokenEndpointAuthSigningAlg string   `json:"token_endpoint_auth_signing_alg,omitempty"`
+	Agent                       bool     `json:"agent,omitempty"`             // Authplane extension
+	AgentDescription            string   `json:"agent_description,omitempty"` // Authplane extension
 }

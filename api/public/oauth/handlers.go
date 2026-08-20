@@ -154,17 +154,19 @@ func (h *oauthHandler) handleAuthCodeExchange(w http.ResponseWriter, r *http.Req
 	}
 
 	clientID, clientSecret := ExtractClientAuth(r)
+	clientAssertion := ExtractClientAssertion(r)
 	dpopProof, dpopMethod, dpopURL := extractDPoPInfo(r)
 
 	req := input.ExchangeCodeRequest{
-		Code:         r.FormValue("code"),
-		RedirectURI:  r.FormValue("redirect_uri"),
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		CodeVerifier: r.FormValue("code_verifier"),
-		DPoPProof:    dpopProof,
-		HTTPMethod:   dpopMethod,
-		HTTPURL:      dpopURL,
+		Code:            r.FormValue("code"),
+		RedirectURI:     r.FormValue("redirect_uri"),
+		ClientID:        clientID,
+		ClientSecret:    clientSecret,
+		ClientAssertion: clientAssertion,
+		CodeVerifier:    r.FormValue("code_verifier"),
+		DPoPProof:       dpopProof,
+		HTTPMethod:      dpopMethod,
+		HTTPURL:         dpopURL,
 	}
 
 	resp, err := h.token.ExchangeCode(r.Context(), req)
@@ -183,16 +185,18 @@ func (h *oauthHandler) handleRefreshToken(w http.ResponseWriter, r *http.Request
 	}
 
 	clientID, clientSecret := ExtractClientAuth(r)
+	clientAssertion := ExtractClientAssertion(r)
 	dpopProof, dpopMethod, dpopURL := extractDPoPInfo(r)
 
 	req := input.RefreshTokenRequest{
-		RefreshToken: r.FormValue("refresh_token"),
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		Scope:        r.FormValue("scope"),
-		DPoPProof:    dpopProof,
-		HTTPMethod:   dpopMethod,
-		HTTPURL:      dpopURL,
+		RefreshToken:    r.FormValue("refresh_token"),
+		ClientID:        clientID,
+		ClientSecret:    clientSecret,
+		ClientAssertion: clientAssertion,
+		Scope:           r.FormValue("scope"),
+		DPoPProof:       dpopProof,
+		HTTPMethod:      dpopMethod,
+		HTTPURL:         dpopURL,
 	}
 
 	resp, err := h.token.RefreshToken(r.Context(), req)
@@ -452,6 +456,12 @@ func ExtractClientAuth(r *http.Request) (clientID, clientSecret string) {
 
 	// Fall back to form body.
 	return r.FormValue("client_id"), r.FormValue("client_secret")
+}
+
+// ExtractClientAssertion returns the RFC 7523 client_assertion form value.
+// The assertion is intentionally never logged or copied into an OAuth error.
+func ExtractClientAssertion(r *http.Request) string {
+	return r.FormValue("client_assertion")
 }
 
 func writeTokenResponse(w http.ResponseWriter, resp *input.TokenResponse) {

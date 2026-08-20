@@ -27,7 +27,7 @@ type ClientStore struct {
 
 var _ output.ClientStore = (*ClientStore)(nil)
 
-const clientColumns = `id, secret_hash, name, redirect_uris, grant_types, response_types, token_endpoint_auth_method, status, registration_source, cimd_url, scope, is_agent, agent_description, version, issued_at, updated_at`
+const clientColumns = `id, secret_hash, name, redirect_uris, grant_types, response_types, token_endpoint_auth_method, jwks_uri, token_endpoint_auth_signing_alg, status, registration_source, cimd_url, scope, is_agent, agent_description, version, issued_at, updated_at`
 
 func scanClient(row interface{ Scan(...any) error }) (*client.Client, error) {
 	var c client.Client
@@ -37,7 +37,7 @@ func scanClient(row interface{ Scan(...any) error }) (*client.Client, error) {
 	if err := row.Scan(
 		&c.ID, &c.SecretHash, &c.Name,
 		&redirectURIs, &grantTypes, &responseTypes,
-		&c.TokenEndpointAuthMethod, &c.Status, &c.RegistrationSource,
+		&c.TokenEndpointAuthMethod, &c.JWKSURI, &c.TokenEndpointAuthSigningAlg, &c.Status, &c.RegistrationSource,
 		&c.CIMDURL, &c.Scope, &c.IsAgent, &c.AgentDescription, &c.Version, &issuedAt, &updatedAt,
 	); err != nil {
 		return nil, err
@@ -77,12 +77,12 @@ func (s *ClientStore) Create(ctx context.Context, c *client.Client) error {
 		c.Version = 1
 	}
 	_, err := dbOrTx(ctx, s.db).ExecContext(ctx,
-		`INSERT INTO clients (`+clientColumns+`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO clients (`+clientColumns+`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		c.ID, c.SecretHash, c.Name,
 		marshalStringSlice(c.RedirectURIs),
 		marshalStringSlice(c.GrantTypes),
 		marshalStringSlice(c.ResponseTypes),
-		c.TokenEndpointAuthMethod, c.Status, c.RegistrationSource,
+		c.TokenEndpointAuthMethod, c.JWKSURI, c.TokenEndpointAuthSigningAlg, c.Status, c.RegistrationSource,
 		c.CIMDURL, c.Scope, c.IsAgent, c.AgentDescription,
 		c.Version, formatTime(c.IssuedAt), formatTime(c.UpdatedAt),
 	)
@@ -153,14 +153,14 @@ func (s *ClientStore) Update(ctx context.Context, c *client.Client) error {
 	start := time.Now()
 	res, err := dbOrTx(ctx, s.db).ExecContext(ctx,
 		`UPDATE clients SET secret_hash=?, name=?, redirect_uris=?, grant_types=?, response_types=?,
-		 token_endpoint_auth_method=?, status=?, registration_source=?, cimd_url=?, scope=?,
-		 is_agent=?, agent_description=?, version=version+1, updated_at=?
+			 token_endpoint_auth_method=?, jwks_uri=?, token_endpoint_auth_signing_alg=?, status=?, registration_source=?, cimd_url=?, scope=?,
+			 is_agent=?, agent_description=?, version=version+1, updated_at=?
 		 WHERE id=? AND version=?`,
 		c.SecretHash, c.Name,
 		marshalStringSlice(c.RedirectURIs),
 		marshalStringSlice(c.GrantTypes),
 		marshalStringSlice(c.ResponseTypes),
-		c.TokenEndpointAuthMethod, c.Status, c.RegistrationSource,
+		c.TokenEndpointAuthMethod, c.JWKSURI, c.TokenEndpointAuthSigningAlg, c.Status, c.RegistrationSource,
 		c.CIMDURL, c.Scope, c.IsAgent, c.AgentDescription,
 		formatTime(c.UpdatedAt), c.ID, c.Version,
 	)

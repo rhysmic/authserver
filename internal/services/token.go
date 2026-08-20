@@ -67,6 +67,7 @@ type TokenService struct {
 	// issuance row (which is the  /  audit-gap that surfaced as
 	// "Issuances list is empty" in the Admin UI).
 	resourceRegistry *ResourceRegistry
+	clientAssertion  *ClientAssertionVerifier
 }
 
 // JWKSSigningKeyProvider provides signing keys for JWT issuance.
@@ -135,6 +136,12 @@ func (s *TokenService) WithResourceRegistry(r *ResourceRegistry) {
 	s.resourceRegistry = r
 }
 
+// WithClientAssertionVerifier enables RFC 7523 private_key_jwt client
+// authentication for authorization-code and refresh-token exchanges.
+func (s *TokenService) WithClientAssertionVerifier(v *ClientAssertionVerifier) {
+	s.clientAssertion = v
+}
+
 // ExchangeCode exchanges an authorization code + PKCE verifier for tokens.
 func (s *TokenService) ExchangeCode(ctx context.Context, req input.ExchangeCodeRequest) (*input.TokenResponse, error) {
 	ctx, span := s.tracer.Start(ctx, "TokenService.ExchangeCode")
@@ -177,7 +184,7 @@ func (s *TokenService) ExchangeCode(ctx context.Context, req input.ExchangeCodeR
 	}
 
 	// 5. Authenticate client.
-	if authErr := s.authenticateClient(ctx, span, sess.ClientID, req.ClientSecret); authErr != nil {
+	if authErr := s.authenticateClient(ctx, span, sess.ClientID, req.ClientSecret, req.ClientAssertion); authErr != nil {
 		return nil, authErr
 	}
 
@@ -329,7 +336,7 @@ func (s *TokenService) RefreshToken(ctx context.Context, req input.RefreshTokenR
 		span.SetStatus(codes.Error, "client_id mismatch")
 		return nil, domain.ErrInvalidClient
 	}
-	if authErr := s.authenticateClient(ctx, span, family.ClientID, req.ClientSecret); authErr != nil {
+	if authErr := s.authenticateClient(ctx, span, family.ClientID, req.ClientSecret, req.ClientAssertion); authErr != nil {
 		return nil, authErr
 	}
 
@@ -446,7 +453,7 @@ func (s *TokenService) RefreshToken(ctx context.Context, req input.RefreshTokenR
 
 // authenticateClient looks up a client by ID, verifies it is active,
 // and verifies the client secret for confidential clients.
-func (s *TokenService) authenticateClient(ctx context.Context, span trace.Span, clientID, clientSecret string) error {
+func (s *TokenService) authenticateClient(ctx context.Context, span trace.Span, clientID, clientSecret, clientAssertion string) error {
 	c, err := s.clients.GetByID(ctx, clientID)
 	if err != nil {
 		span.RecordError(domain.ErrInvalidClient)
@@ -460,7 +467,18 @@ func (s *TokenService) authenticateClient(ctx context.Context, span trace.Span, 
 		return domain.ErrClientSuspended
 	}
 
-	if !c.IsPublic() {
+	if c.TokenEndpointAuthMethod == "private_key_jwt" {
+		if clientSecret != "" || s.clientAssertion == nil {
+			span.RecordError(domain.ErrInvalidClient)
+			span.SetStatus(codes.Error, "private_key_jwt client authentication missing")
+			return domain.ErrInvalidClient
+		}
+		if err := s.clientAssertion.Verify(ctx, c, clientAssertion, strings.TrimRight(s.issuer, "/")+"/oauth/token"); err != nil {
+			span.RecordError(domain.ErrInvalidClient)
+			span.SetStatus(codes.Error, "private_key_jwt client authentication failed")
+			return domain.ErrInvalidClient
+		}
+	} else if !c.IsPublic() {
 		if clientSecret == "" {
 			span.RecordError(domain.ErrInvalidClient)
 			span.SetStatus(codes.Error, "missing client_secret")
@@ -471,7 +489,7 @@ func (s *TokenService) authenticateClient(ctx context.Context, span trace.Span, 
 			span.SetStatus(codes.Error, "invalid client_secret")
 			return domain.ErrInvalidClient
 		}
-	} else if clientSecret != "" {
+	} else if clientSecret != "" || clientAssertion != "" {
 		span.RecordError(domain.ErrInvalidClient)
 		span.SetStatus(codes.Error, "public client sent secret")
 		return domain.ErrInvalidClient

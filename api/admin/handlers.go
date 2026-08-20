@@ -30,14 +30,16 @@ func (h *handlers) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, err := h.admin.CreateClient(r.Context(), input.CreateClientRequest{
-		Name:                    req.ClientName,
-		RedirectURIs:            req.RedirectURIs,
-		GrantTypes:              req.GrantTypes,
-		ResponseTypes:           req.ResponseTypes,
-		TokenEndpointAuthMethod: req.TokenEndpointAuthMethod,
-		Scope:                   req.Scope,
-		IsAgent:                 req.Agent,
-		AgentDescription:        req.AgentDescription,
+		Name:                        req.ClientName,
+		RedirectURIs:                req.RedirectURIs,
+		GrantTypes:                  req.GrantTypes,
+		ResponseTypes:               req.ResponseTypes,
+		TokenEndpointAuthMethod:     req.TokenEndpointAuthMethod,
+		JWKSURI:                     req.JWKSURI,
+		TokenEndpointAuthSigningAlg: req.TokenEndpointAuthSigningAlg,
+		Scope:                       req.Scope,
+		IsAgent:                     req.Agent,
+		AgentDescription:            req.AgentDescription,
 	})
 	if err != nil {
 		writeDomainOrInternalError(w, r, h.obs, "create client failed", err)
@@ -45,19 +47,21 @@ func (h *handlers) handleCreateClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shared.WriteJSON(w, http.StatusCreated, createClientResponse{
-		ClientID:                resp.Client.ID,
-		ClientSecret:            resp.ClientSecret,
-		ClientName:              resp.Client.Name,
-		RedirectURIs:            resp.Client.RedirectURIs,
-		GrantTypes:              resp.Client.GrantTypes,
-		ResponseTypes:           resp.Client.ResponseTypes,
-		TokenEndpointAuthMethod: resp.Client.TokenEndpointAuthMethod,
-		Scope:                   resp.Client.Scope,
-		Status:                  string(resp.Client.Status),
-		RegistrationSource:      string(resp.Client.RegistrationSource),
-		IsAgent:                 resp.Client.IsAgent,
-		AgentDescription:        resp.Client.AgentDescription,
-		IssuedAt:                resp.Client.IssuedAt.Format(time.RFC3339),
+		ClientID:                    resp.Client.ID,
+		ClientSecret:                resp.ClientSecret,
+		ClientName:                  resp.Client.Name,
+		RedirectURIs:                resp.Client.RedirectURIs,
+		GrantTypes:                  resp.Client.GrantTypes,
+		ResponseTypes:               resp.Client.ResponseTypes,
+		TokenEndpointAuthMethod:     resp.Client.TokenEndpointAuthMethod,
+		JWKSURI:                     resp.Client.JWKSURI,
+		TokenEndpointAuthSigningAlg: resp.Client.TokenEndpointAuthSigningAlg,
+		Scope:                       resp.Client.Scope,
+		Status:                      string(resp.Client.Status),
+		RegistrationSource:          string(resp.Client.RegistrationSource),
+		IsAgent:                     resp.Client.IsAgent,
+		AgentDescription:            resp.Client.AgentDescription,
+		IssuedAt:                    resp.Client.IssuedAt.Format(time.RFC3339),
 	})
 }
 

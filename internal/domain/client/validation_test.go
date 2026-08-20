@@ -58,13 +58,10 @@ func TestValidateResponseType(t *testing.T) {
 }
 
 func TestValidateAuthMethod(t *testing.T) {
-	for _, m := range []string{"none", "client_secret_basic", "client_secret_post"} {
+	for _, m := range []string{"none", "client_secret_basic", "client_secret_post", "private_key_jwt"} {
 		if err := ValidateAuthMethod(m); err != nil {
 			t.Errorf("%q should be valid: %v", m, err)
 		}
-	}
-	if err := ValidateAuthMethod("private_key_jwt"); err == nil {
-		t.Error("private_key_jwt should be rejected")
 	}
 }
 

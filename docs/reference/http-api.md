@@ -1464,7 +1464,7 @@ UserGrantsView is the JSON body for GET /admin/users/{id}/grants and for the equ
 
 <a id="dto-agents-config-view"></a>
 
-**Source** — `api/admin/dto.go:305`
+**Source** — `api/admin/dto.go:313`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1507,7 +1507,7 @@ asMetadata is the JSON body for GET /.well-known/oauth-authorization-server (RFC
 
 auditEventView is the JSON representation of an audit event.
 
-**Source** — `api/admin/dto.go:201`
+**Source** — `api/admin/dto.go:209`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1526,7 +1526,7 @@ auditEventView is the JSON representation of an audit event.
 
 authVerifyResponse is the JSON body for POST /admin/auth/verify.
 
-**Source** — `api/admin/dto.go:234`
+**Source** — `api/admin/dto.go:242`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1537,7 +1537,7 @@ authVerifyResponse is the JSON body for POST /admin/auth/verify.
 
 <a id="dto-client-credentials-config-view"></a>
 
-**Source** — `api/admin/dto.go:290`
+**Source** — `api/admin/dto.go:298`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1549,7 +1549,7 @@ authVerifyResponse is the JSON body for POST /admin/auth/verify.
 
 clientView is the sanitized JSON representation of a client (no secrets).
 
-**Source** — `api/admin/dto.go:79`
+**Source** — `api/admin/dto.go:83`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1559,6 +1559,8 @@ clientView is the sanitized JSON representation of a client (no secrets).
 | `grant_types` | `[]string` | yes |  |
 | `response_types` | `[]string` | yes |  |
 | `token_endpoint_auth_method` | `string` | yes |  |
+| `jwks_uri` | `string` | no | `omitempty` |
+| `token_endpoint_auth_signing_alg` | `string` | no | `omitempty` |
 | `status` | `client.Status` | yes |  |
 | `registration_source` | `client.RegistrationSource` | yes |  |
 | `cimd_url` | `string` | yes |  |
@@ -1571,7 +1573,7 @@ clientView is the sanitized JSON representation of a client (no secrets).
 
 createBrokerProviderRequest is the JSON body for POST /admin/broker-providers.
 
-**Source** — `api/admin/dto.go:374`
+**Source** — `api/admin/dto.go:382`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1595,6 +1597,8 @@ createClientRequest is the JSON body for POST /admin/clients.
 | `grant_types` | `[]string` | yes |  |
 | `response_types` | `[]string` | yes |  |
 | `token_endpoint_auth_method` | `string` | yes |  |
+| `jwks_uri` | `string` | no | `omitempty` |
+| `token_endpoint_auth_signing_alg` | `string` | no | `omitempty` |
 | `scope` | `string` | yes |  |
 | `agent` | `bool` | yes |  |
 | `agent_description` | `string` | yes |  |
@@ -1605,7 +1609,7 @@ createClientRequest is the JSON body for POST /admin/clients.
 
 createClientResponse is the JSON body for POST /admin/clients (201). The client_secret is shown once and never stored in plaintext.
 
-**Source** — `api/admin/dto.go:28`
+**Source** — `api/admin/dto.go:30`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1616,6 +1620,8 @@ createClientResponse is the JSON body for POST /admin/clients (201). The client_
 | `grant_types` | `[]string` | yes |  |
 | `response_types` | `[]string` | yes |  |
 | `token_endpoint_auth_method` | `string` | yes |  |
+| `jwks_uri` | `string` | no | `omitempty` |
+| `token_endpoint_auth_signing_alg` | `string` | no | `omitempty` |
 | `scope` | `string` | yes |  |
 | `status` | `string` | yes |  |
 | `registration_source` | `string` | yes |  |
@@ -1629,7 +1635,7 @@ createClientResponse is the JSON body for POST /admin/clients (201). The client_
 
 createFrontingLinkRequest is the JSON body for POST /admin/fronting (and the validation preflight POST /admin/fronting?dry_run=true). All three fields are required; the service applies validation rule-by-rule and returns the most specific failure.
 
-**Source** — `api/admin/dto.go:406`
+**Source** — `api/admin/dto.go:414`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1643,7 +1649,7 @@ createFrontingLinkRequest is the JSON body for POST /admin/fronting (and the val
 
 createResourceRequest is the JSON body for POST /admin/resources. BrokerProviderSlug is the slug-friendly alternative to BrokerProviderID. Operators may supply either one — the handler resolves the slug to a UUID before persistence. Supplying both with inconsistent values returns 400; supplying both with consistent values is accepted and the slug is honored.
 
-**Source** — `api/admin/dto.go:349`
+**Source** — `api/admin/dto.go:357`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1662,7 +1668,7 @@ createResourceRequest is the JSON body for POST /admin/resources. BrokerProvider
 
 createUserRequest is the JSON body for POST /admin/users.
 
-**Source** — `api/admin/dto.go:61`
+**Source** — `api/admin/dto.go:65`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1675,7 +1681,7 @@ createUserRequest is the JSON body for POST /admin/users.
 
 <a id="dto-dcr-config-view"></a>
 
-**Source** — `api/admin/dto.go:282`
+**Source** — `api/admin/dto.go:290`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1687,7 +1693,7 @@ createUserRequest is the JSON body for POST /admin/users.
 
 dcrSettingsView is the JSON body for GET/PATCH /admin/settings/dcr.
 
-**Source** — `api/admin/dto.go:191`
+**Source** — `api/admin/dto.go:199`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1697,7 +1703,7 @@ dcrSettingsView is the JSON body for GET/PATCH /admin/settings/dcr.
 
 <a id="dto-dpop-config-view"></a>
 
-**Source** — `api/admin/dto.go:294`
+**Source** — `api/admin/dto.go:302`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1709,7 +1715,7 @@ dcrSettingsView is the JSON body for GET/PATCH /admin/settings/dcr.
 
 <a id="dto-encryption-config-view"></a>
 
-**Source** — `api/admin/dto.go:278`
+**Source** — `api/admin/dto.go:286`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1721,7 +1727,7 @@ dcrSettingsView is the JSON body for GET/PATCH /admin/settings/dcr.
 
 frontingLinkConflictResponse is the body of the 409 returned from DELETE /admin/resources/{id} when fronting links reference the resource and ?cascade=true was not supplied. Callers (UI, CLI) read `dependents` to render the cascade-confirmation modal.
 
-**Source** — `api/admin/dto.go:428`
+**Source** — `api/admin/dto.go:436`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1748,7 +1754,7 @@ healthResponse is the JSON body for GET /health and GET /ready.
 
 keyView is the JSON representation of a signing key (public info only).
 
-**Source** — `api/admin/dto.go:172`
+**Source** — `api/admin/dto.go:180`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1763,7 +1769,7 @@ keyView is the JSON representation of a signing key (public info only).
 
 listKeysResponse is the JSON body for GET /admin/keys.
 
-**Source** — `api/admin/dto.go:180`
+**Source** — `api/admin/dto.go:188`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1773,7 +1779,7 @@ listKeysResponse is the JSON body for GET /admin/keys.
 
 <a id="dto-oidc-config-view"></a>
 
-**Source** — `api/admin/dto.go:310`
+**Source** — `api/admin/dto.go:318`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1785,7 +1791,7 @@ listKeysResponse is the JSON body for GET /admin/keys.
 
 patchBrokerProviderRequest is the JSON body for PATCH /admin/broker-providers/{id}. Pointer fields enable partial updates.
 
-**Source** — `api/admin/dto.go:383`
+**Source** — `api/admin/dto.go:391`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1800,7 +1806,7 @@ patchBrokerProviderRequest is the JSON body for PATCH /admin/broker-providers/{i
 
 patchFrontingLinkRequest is the JSON body for PATCH /admin/fronting/{source}/{target}. Only ScopeMap is patchable — rewiring source/target requires delete + recreate. PATCH-dirty semantics: a nil pointer field is LEFT UNCHANGED. Sending the explicit `{}` empty object would be a wipe (rejected by domain validation since scope_map must contain at least one entry). This mirrors the security-by-default rule on input.ResourcePatch.
 
-**Source** — `api/admin/dto.go:420`
+**Source** — `api/admin/dto.go:428`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1812,7 +1818,7 @@ patchFrontingLinkRequest is the JSON body for PATCH /admin/fronting/{source}/{ta
 
 patchResourceRequest is the JSON body for PATCH /admin/resources/{id}. Pointer fields enable partial updates with the security-by-default rule described on input.ResourcePatch.
 
-**Source** — `api/admin/dto.go:363`
+**Source** — `api/admin/dto.go:371`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1828,7 +1834,7 @@ patchResourceRequest is the JSON body for PATCH /admin/resources/{id}. Pointer f
 
 <a id="dto-rate-limit-config-view"></a>
 
-**Source** — `api/admin/dto.go:286`
+**Source** — `api/admin/dto.go:294`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1840,7 +1846,7 @@ patchResourceRequest is the JSON body for PATCH /admin/resources/{id}. Pointer f
 
 rotateKeyResponse is the JSON body for POST /admin/keys/rotate.
 
-**Source** — `api/admin/dto.go:185`
+**Source** — `api/admin/dto.go:193`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1853,7 +1859,7 @@ rotateKeyResponse is the JSON body for POST /admin/keys/rotate.
 
 rotateSecretResponse is the JSON body for POST /admin/clients/{id}/rotate-secret (200). The client_secret is shown once and never stored in plaintext.
 
-**Source** — `api/admin/dto.go:55`
+**Source** — `api/admin/dto.go:59`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1864,7 +1870,7 @@ rotateSecretResponse is the JSON body for POST /admin/clients/{id}/rotate-secret
 
 <a id="dto-signing-config-view"></a>
 
-**Source** — `api/admin/dto.go:273`
+**Source** — `api/admin/dto.go:281`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1877,7 +1883,7 @@ rotateSecretResponse is the JSON body for POST /admin/clients/{id}/rotate-secret
 
 statsView is the JSON body for GET /admin/stats.
 
-**Source** — `api/admin/dto.go:153`
+**Source** — `api/admin/dto.go:161`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1893,7 +1899,7 @@ statsView is the JSON body for GET /admin/stats.
 
 statusResponse is the JSON body for simple status-only responses.
 
-**Source** — `api/admin/dto.go:74`
+**Source** — `api/admin/dto.go:78`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1903,7 +1909,7 @@ statusResponse is the JSON body for simple status-only responses.
 
 <a id="dto-storage-config-view"></a>
 
-**Source** — `api/admin/dto.go:269`
+**Source** — `api/admin/dto.go:277`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1915,7 +1921,7 @@ statusResponse is the JSON body for simple status-only responses.
 
 subsystemStatus represents the health status of a server subsystem.
 
-**Source** — `api/admin/dto.go:248`
+**Source** — `api/admin/dto.go:256`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1929,7 +1935,7 @@ subsystemStatus represents the health status of a server subsystem.
 
 systemConfigResponse is the JSON body for GET /admin/system/config.
 
-**Source** — `api/admin/dto.go:255`
+**Source** — `api/admin/dto.go:263`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1951,7 +1957,7 @@ systemConfigResponse is the JSON body for GET /admin/system/config.
 
 systemStatusResponse is the JSON body for GET /admin/system/status.
 
-**Source** — `api/admin/dto.go:240`
+**Source** — `api/admin/dto.go:248`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -1964,7 +1970,7 @@ systemStatusResponse is the JSON body for GET /admin/system/status.
 
 <a id="dto-token-exchange-config-view"></a>
 
-**Source** — `api/admin/dto.go:300`
+**Source** — `api/admin/dto.go:308`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -2009,7 +2015,7 @@ tokenResponseDTO is the JSON structure for POST /oauth/token responses.
 
 updateClientRequest is the JSON body for PATCH /admin/clients/{id}. Pointer fields enable partial updates — only non-null fields are applied.
 
-**Source** — `api/admin/dto.go:46`
+**Source** — `api/admin/dto.go:50`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -2024,7 +2030,7 @@ updateClientRequest is the JSON body for PATCH /admin/clients/{id}. Pointer fiel
 
 updateDCRSettingsRequest is the JSON body for PATCH /admin/settings/dcr.
 
-**Source** — `api/admin/dto.go:196`
+**Source** — `api/admin/dto.go:204`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -2034,7 +2040,7 @@ updateDCRSettingsRequest is the JSON body for PATCH /admin/settings/dcr.
 
 <a id="dto-update-user-request"></a>
 
-**Source** — `api/admin/dto.go:68`
+**Source** — `api/admin/dto.go:72`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -2047,7 +2053,7 @@ updateDCRSettingsRequest is the JSON body for PATCH /admin/settings/dcr.
 
 userView is the sanitized JSON representation of a user (no password hash).
 
-**Source** — `api/admin/dto.go:120`
+**Source** — `api/admin/dto.go:128`
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |

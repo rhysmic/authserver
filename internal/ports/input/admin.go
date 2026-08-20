@@ -73,14 +73,16 @@ type AuditFilter struct {
 
 // CreateClientRequest defines the inputs for admin-provisioned client creation.
 type CreateClientRequest struct {
-	Name                    string
-	RedirectURIs            []string
-	GrantTypes              []string
-	ResponseTypes           []string
-	TokenEndpointAuthMethod string
-	Scope                   string
-	IsAgent                 bool
-	AgentDescription        string
+	Name                        string
+	RedirectURIs                []string
+	GrantTypes                  []string
+	ResponseTypes               []string
+	TokenEndpointAuthMethod     string
+	JWKSURI                     string
+	TokenEndpointAuthSigningAlg string
+	Scope                       string
+	IsAgent                     bool
+	AgentDescription            string
 }
 
 // CreateClientResponse returns the created client and the plaintext secret (shown once).

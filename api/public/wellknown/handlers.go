@@ -61,7 +61,7 @@ func (h *handler) handleASMetadata(w http.ResponseWriter, r *http.Request) {
 		JWKSURI:                           issuer + "/.well-known/jwks.json",
 		ResponseTypesSupported:            []string{"code"},
 		GrantTypesSupported:               grantTypes,
-		TokenEndpointAuthMethodsSupported: []string{"none", "client_secret_basic", "client_secret_post"},
+		TokenEndpointAuthMethodsSupported: []string{"none", "client_secret_basic", "client_secret_post", "private_key_jwt"},
 		RevocationEndpointAuthMethods:     []string{"none", "client_secret_basic", "client_secret_post"},
 		CodeChallengeMethodsSupported:     []string{"S256"},
 		ScopesSupported:                   h.collectScopes(),

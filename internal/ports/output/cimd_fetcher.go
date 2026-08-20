@@ -12,10 +12,13 @@ type CIMDFetcher interface {
 
 // CIMDDocument represents a parsed Client ID Metadata Document.
 type CIMDDocument struct {
-	ClientID                string   `json:"client_id"`
-	RedirectURIs            []string `json:"redirect_uris"`
-	ClientName              string   `json:"client_name"`
-	GrantTypes              []string `json:"grant_types"`
-	ResponseTypes           []string `json:"response_types"`
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
+	ClientID                          string   `json:"client_id"`
+	RedirectURIs                      []string `json:"redirect_uris"`
+	ClientName                        string   `json:"client_name"`
+	GrantTypes                        []string `json:"grant_types"`
+	ResponseTypes                     []string `json:"response_types"`
+	TokenEndpointAuthMethod           string   `json:"token_endpoint_auth_method"`
+	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
+	JWKSURI                           string   `json:"jwks_uri"`
+	TokenEndpointAuthSigningAlg       string   `json:"token_endpoint_auth_signing_alg"`
 }

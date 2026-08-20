@@ -141,6 +141,8 @@ func (s *CIMDService) VerifyCIMD(ctx context.Context, clientID string) (*client.
 		existing.GrantTypes = doc.GrantTypes
 		existing.ResponseTypes = doc.ResponseTypes
 		existing.TokenEndpointAuthMethod = doc.TokenEndpointAuthMethod
+		existing.JWKSURI = doc.JWKSURI
+		existing.TokenEndpointAuthSigningAlg = doc.TokenEndpointAuthSigningAlg
 		existing.UpdatedAt = now
 
 		if err := s.clients.Update(ctx, existing); err != nil {
@@ -154,17 +156,19 @@ func (s *CIMDService) VerifyCIMD(ctx context.Context, clientID string) (*client.
 
 	// Create new client from CIMD document.
 	c := &client.Client{
-		ID:                      clientID, // For CIMD, client_id IS the URL.
-		Name:                    doc.ClientName,
-		RedirectURIs:            doc.RedirectURIs,
-		GrantTypes:              doc.GrantTypes,
-		ResponseTypes:           doc.ResponseTypes,
-		TokenEndpointAuthMethod: doc.TokenEndpointAuthMethod,
-		Status:                  client.StatusActive,
-		RegistrationSource:      client.SourceCIMD,
-		CIMDURL:                 clientID,
-		IssuedAt:                now,
-		UpdatedAt:               now,
+		ID:                          clientID, // For CIMD, client_id IS the URL.
+		Name:                        doc.ClientName,
+		RedirectURIs:                doc.RedirectURIs,
+		GrantTypes:                  doc.GrantTypes,
+		ResponseTypes:               doc.ResponseTypes,
+		TokenEndpointAuthMethod:     doc.TokenEndpointAuthMethod,
+		JWKSURI:                     doc.JWKSURI,
+		TokenEndpointAuthSigningAlg: doc.TokenEndpointAuthSigningAlg,
+		Status:                      client.StatusActive,
+		RegistrationSource:          client.SourceCIMD,
+		CIMDURL:                     clientID,
+		IssuedAt:                    now,
+		UpdatedAt:                   now,
 	}
 
 	if err := s.clients.Create(ctx, c); err != nil {

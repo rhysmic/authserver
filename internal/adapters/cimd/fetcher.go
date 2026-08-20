@@ -175,6 +175,18 @@ func (f *Fetcher) Fetch(ctx context.Context, docURL string) (*output.CIMDDocumen
 		span.SetStatus(codes.Error, err.Error())
 		return nil, fmt.Errorf("%w: invalid JSON: %v", domain.ErrCIMDInvalid, err)
 	}
+	if doc.TokenEndpointAuthMethod == "" {
+		doc.TokenEndpointAuthMethod = "none"
+		for _, method := range doc.TokenEndpointAuthMethodsSupported {
+			if method == "private_key_jwt" {
+				doc.TokenEndpointAuthMethod = method
+				break
+			}
+		}
+	}
+	if doc.TokenEndpointAuthMethod == "private_key_jwt" && doc.TokenEndpointAuthSigningAlg == "" {
+		doc.TokenEndpointAuthSigningAlg = "RS256"
+	}
 
 	// Validate required fields.
 	if err := validateDocument(&doc, docURL); err != nil {
@@ -189,9 +201,6 @@ func (f *Fetcher) Fetch(ctx context.Context, docURL string) (*output.CIMDDocumen
 	}
 	if len(doc.ResponseTypes) == 0 {
 		doc.ResponseTypes = []string{"code"}
-	}
-	if doc.TokenEndpointAuthMethod == "" {
-		doc.TokenEndpointAuthMethod = "none"
 	}
 
 	// Cache the result.
@@ -219,6 +228,14 @@ func validateDocument(doc *output.CIMDDocument, fetchURL string) error {
 		if err := client.ValidateRedirectURI(uri); err != nil {
 			return fmt.Errorf("%w: invalid redirect_uri %q: %v", domain.ErrCIMDInvalid, uri, err)
 		}
+	}
+	if doc.TokenEndpointAuthMethod == "private_key_jwt" {
+		if err := client.ValidateJWKSURI(doc.JWKSURI); err != nil {
+			return fmt.Errorf("%w: %v", domain.ErrCIMDInvalid, err)
+		}
+	}
+	if err := client.ValidateAuthMethod(doc.TokenEndpointAuthMethod); err != nil {
+		return fmt.Errorf("%w: %v", domain.ErrCIMDInvalid, err)
 	}
 	return nil
 }

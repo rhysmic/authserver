@@ -15,11 +15,12 @@ type TokenPort interface {
 // ExchangeCodeRequest contains the parameters from POST /oauth/token
 // with grant_type=authorization_code.
 type ExchangeCodeRequest struct {
-	Code         string
-	RedirectURI  string
-	ClientID     string
-	ClientSecret string // empty for public clients
-	CodeVerifier string // PKCE
+	Code            string
+	RedirectURI     string
+	ClientID        string
+	ClientSecret    string // empty for public clients
+	ClientAssertion string // RFC 7523 private_key_jwt assertion
+	CodeVerifier    string // PKCE
 
 	// DPoP fields (RFC 9449) — optional.
 	DPoPProof  string // raw DPoP proof JWT from DPoP header
@@ -30,10 +31,11 @@ type ExchangeCodeRequest struct {
 // RefreshTokenRequest contains the parameters from POST /oauth/token
 // with grant_type=refresh_token.
 type RefreshTokenRequest struct {
-	RefreshToken string
-	ClientID     string
-	ClientSecret string // empty for public clients
-	Scope        string // optional: request narrower scope
+	RefreshToken    string
+	ClientID        string
+	ClientSecret    string // empty for public clients
+	ClientAssertion string // RFC 7523 private_key_jwt assertion
+	Scope           string // optional: request narrower scope
 
 	// DPoP fields (RFC 9449) — optional.
 	DPoPProof  string // raw DPoP proof JWT from DPoP header

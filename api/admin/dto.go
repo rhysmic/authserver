@@ -13,32 +13,36 @@ import (
 
 // createClientRequest is the JSON body for POST /admin/clients.
 type createClientRequest struct {
-	ClientName              string   `json:"client_name"`
-	RedirectURIs            []string `json:"redirect_uris"`
-	GrantTypes              []string `json:"grant_types"`
-	ResponseTypes           []string `json:"response_types"`
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
-	Scope                   string   `json:"scope"`
-	Agent                   bool     `json:"agent"`
-	AgentDescription        string   `json:"agent_description"`
+	ClientName                  string   `json:"client_name"`
+	RedirectURIs                []string `json:"redirect_uris"`
+	GrantTypes                  []string `json:"grant_types"`
+	ResponseTypes               []string `json:"response_types"`
+	TokenEndpointAuthMethod     string   `json:"token_endpoint_auth_method"`
+	JWKSURI                     string   `json:"jwks_uri,omitempty"`
+	TokenEndpointAuthSigningAlg string   `json:"token_endpoint_auth_signing_alg,omitempty"`
+	Scope                       string   `json:"scope"`
+	Agent                       bool     `json:"agent"`
+	AgentDescription            string   `json:"agent_description"`
 }
 
 // createClientResponse is the JSON body for POST /admin/clients (201).
 // The client_secret is shown once and never stored in plaintext.
 type createClientResponse struct {
-	ClientID                string   `json:"client_id"`
-	ClientSecret            string   `json:"client_secret,omitempty"`
-	ClientName              string   `json:"client_name"`
-	RedirectURIs            []string `json:"redirect_uris"`
-	GrantTypes              []string `json:"grant_types"`
-	ResponseTypes           []string `json:"response_types"`
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
-	Scope                   string   `json:"scope"`
-	Status                  string   `json:"status"`
-	RegistrationSource      string   `json:"registration_source"`
-	IsAgent                 bool     `json:"agent,omitempty"`
-	AgentDescription        string   `json:"agent_description,omitempty"`
-	IssuedAt                string   `json:"issued_at"`
+	ClientID                    string   `json:"client_id"`
+	ClientSecret                string   `json:"client_secret,omitempty"`
+	ClientName                  string   `json:"client_name"`
+	RedirectURIs                []string `json:"redirect_uris"`
+	GrantTypes                  []string `json:"grant_types"`
+	ResponseTypes               []string `json:"response_types"`
+	TokenEndpointAuthMethod     string   `json:"token_endpoint_auth_method"`
+	JWKSURI                     string   `json:"jwks_uri,omitempty"`
+	TokenEndpointAuthSigningAlg string   `json:"token_endpoint_auth_signing_alg,omitempty"`
+	Scope                       string   `json:"scope"`
+	Status                      string   `json:"status"`
+	RegistrationSource          string   `json:"registration_source"`
+	IsAgent                     bool     `json:"agent,omitempty"`
+	AgentDescription            string   `json:"agent_description,omitempty"`
+	IssuedAt                    string   `json:"issued_at"`
 }
 
 // updateClientRequest is the JSON body for PATCH /admin/clients/{id}.
@@ -77,33 +81,37 @@ type statusResponse struct {
 
 // clientView is the sanitized JSON representation of a client (no secrets).
 type clientView struct {
-	ID                      string                    `json:"id"`
-	Name                    string                    `json:"name"`
-	RedirectURIs            []string                  `json:"redirect_uris"`
-	GrantTypes              []string                  `json:"grant_types"`
-	ResponseTypes           []string                  `json:"response_types"`
-	TokenEndpointAuthMethod string                    `json:"token_endpoint_auth_method"`
-	Status                  client.Status             `json:"status"`
-	RegistrationSource      client.RegistrationSource `json:"registration_source"`
-	CIMDURL                 string                    `json:"cimd_url"`
-	IssuedAt                time.Time                 `json:"issued_at"`
-	UpdatedAt               time.Time                 `json:"updated_at"`
+	ID                          string                    `json:"id"`
+	Name                        string                    `json:"name"`
+	RedirectURIs                []string                  `json:"redirect_uris"`
+	GrantTypes                  []string                  `json:"grant_types"`
+	ResponseTypes               []string                  `json:"response_types"`
+	TokenEndpointAuthMethod     string                    `json:"token_endpoint_auth_method"`
+	JWKSURI                     string                    `json:"jwks_uri,omitempty"`
+	TokenEndpointAuthSigningAlg string                    `json:"token_endpoint_auth_signing_alg,omitempty"`
+	Status                      client.Status             `json:"status"`
+	RegistrationSource          client.RegistrationSource `json:"registration_source"`
+	CIMDURL                     string                    `json:"cimd_url"`
+	IssuedAt                    time.Time                 `json:"issued_at"`
+	UpdatedAt                   time.Time                 `json:"updated_at"`
 }
 
 // newClientView creates a clientView from a domain client, stripping sensitive fields.
 func newClientView(c *client.Client) clientView {
 	return clientView{
-		ID:                      c.ID,
-		Name:                    c.Name,
-		RedirectURIs:            c.RedirectURIs,
-		GrantTypes:              c.GrantTypes,
-		ResponseTypes:           c.ResponseTypes,
-		TokenEndpointAuthMethod: c.TokenEndpointAuthMethod,
-		Status:                  c.Status,
-		RegistrationSource:      c.RegistrationSource,
-		CIMDURL:                 c.CIMDURL,
-		IssuedAt:                c.IssuedAt,
-		UpdatedAt:               c.UpdatedAt,
+		ID:                          c.ID,
+		Name:                        c.Name,
+		RedirectURIs:                c.RedirectURIs,
+		GrantTypes:                  c.GrantTypes,
+		ResponseTypes:               c.ResponseTypes,
+		TokenEndpointAuthMethod:     c.TokenEndpointAuthMethod,
+		JWKSURI:                     c.JWKSURI,
+		TokenEndpointAuthSigningAlg: c.TokenEndpointAuthSigningAlg,
+		Status:                      c.Status,
+		RegistrationSource:          c.RegistrationSource,
+		CIMDURL:                     c.CIMDURL,
+		IssuedAt:                    c.IssuedAt,
+		UpdatedAt:                   c.UpdatedAt,
 	}
 }
 

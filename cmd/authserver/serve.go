@@ -356,6 +356,7 @@ func runServe() error {
 	// OAuth grants —  introduced the audit row but  deferred
 	// the TokenService wiring; this closes that gap.
 	tokenSvc.WithResourceRegistry(resourceRegistry)
+	tokenSvc.WithClientAssertionVerifier(services.NewClientAssertionVerifier(ds.AssertionJTI()))
 
 	// Fronting-link service. Constructed
 	// once at top level so the runtime path (TokenExchangeService) and the

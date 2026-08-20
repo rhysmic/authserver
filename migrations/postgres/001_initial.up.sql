@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS clients (
     grant_types                 JSONB       NOT NULL DEFAULT '["authorization_code"]',
     response_types              JSONB       NOT NULL DEFAULT '["code"]',
     token_endpoint_auth_method  TEXT        NOT NULL DEFAULT 'none',
+    jwks_uri                    TEXT        NOT NULL DEFAULT '',
+    token_endpoint_auth_signing_alg TEXT    NOT NULL DEFAULT '',
     status                      TEXT        NOT NULL DEFAULT 'active',
     registration_source         TEXT        NOT NULL DEFAULT 'dcr',
     cimd_url                    TEXT        NOT NULL DEFAULT '',

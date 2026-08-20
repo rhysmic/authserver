@@ -30,27 +30,37 @@ const (
 
 // Client is an OAuth 2.1 client registered with the authorization server.
 type Client struct {
-	ID                      string
-	SecretHash              string // bcrypt hash; empty for public clients
-	Name                    string
-	RedirectURIs            []string
-	GrantTypes              []string // e.g. ["authorization_code"]
-	ResponseTypes           []string // e.g. ["code"]
-	TokenEndpointAuthMethod string   // "none", "client_secret_basic", "client_secret_post"
-	Status                  Status
-	RegistrationSource      RegistrationSource
-	CIMDURL                 string // non-empty for CIMD-registered clients
-	Scope                   string // space-separated list of allowed scopes (RFC 7591); empty = no restriction
-	IsAgent                 bool   // true for agent clients (Authplane extension)
-	AgentDescription        string // human-readable agent description (max 255 chars)
-	Version                 int64  // optimistic locking — starts at 1, increments on each Update
-	IssuedAt                time.Time
-	UpdatedAt               time.Time
+	ID                          string
+	SecretHash                  string // bcrypt hash; empty for public clients
+	Name                        string
+	RedirectURIs                []string
+	GrantTypes                  []string // e.g. ["authorization_code"]
+	ResponseTypes               []string // e.g. ["code"]
+	TokenEndpointAuthMethod     string   // "none", "client_secret_basic", "client_secret_post", "private_key_jwt"
+	JWKSURI                     string   // signing key set for private_key_jwt clients
+	TokenEndpointAuthSigningAlg string   // JWS algorithm for private_key_jwt (default RS256)
+	Status                      Status
+	RegistrationSource          RegistrationSource
+	CIMDURL                     string // non-empty for CIMD-registered clients
+	Scope                       string // space-separated list of allowed scopes (RFC 7591); empty = no restriction
+	IsAgent                     bool   // true for agent clients (Authplane extension)
+	AgentDescription            string // human-readable agent description (max 255 chars)
+	Version                     int64  // optimistic locking — starts at 1, increments on each Update
+	IssuedAt                    time.Time
+	UpdatedAt                   time.Time
 }
 
 // IsPublic returns true if the client has no secret (public client).
 func (c *Client) IsPublic() bool {
-	return c.SecretHash == ""
+	return c.SecretHash == "" && c.TokenEndpointAuthMethod != "private_key_jwt"
+}
+
+// RequiresClientSecret reports whether registration must create a client
+// secret. private_key_jwt clients authenticate with a signed assertion and
+// therefore intentionally have no stored secret.
+func (c *Client) RequiresClientSecret() bool {
+	return c.TokenEndpointAuthMethod == "client_secret_basic" ||
+		c.TokenEndpointAuthMethod == "client_secret_post"
 }
 
 // IsActive returns true if the client can participate in OAuth flows.
@@ -140,15 +150,17 @@ func (e *StateError) Code() string { return domain.CodeConflict }
 
 // CreateParams are the inputs for creating a new client via DCR or admin.
 type CreateParams struct {
-	Name                    string
-	RedirectURIs            []string
-	GrantTypes              []string
-	ResponseTypes           []string
-	TokenEndpointAuthMethod string
-	RegistrationSource      RegistrationSource
-	CIMDURL                 string
-	IsAgent                 bool
-	AgentDescription        string
+	Name                        string
+	RedirectURIs                []string
+	GrantTypes                  []string
+	ResponseTypes               []string
+	TokenEndpointAuthMethod     string
+	JWKSURI                     string
+	TokenEndpointAuthSigningAlg string
+	RegistrationSource          RegistrationSource
+	CIMDURL                     string
+	IsAgent                     bool
+	AgentDescription            string
 }
 
 // Defaults fills in RFC 7591 defaults for optional fields.
@@ -161,5 +173,8 @@ func (p *CreateParams) Defaults() {
 	}
 	if p.TokenEndpointAuthMethod == "" {
 		p.TokenEndpointAuthMethod = "none"
+	}
+	if p.TokenEndpointAuthMethod == "private_key_jwt" && p.TokenEndpointAuthSigningAlg == "" {
+		p.TokenEndpointAuthSigningAlg = "RS256"
 	}
 }

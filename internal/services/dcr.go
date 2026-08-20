@@ -95,14 +95,24 @@ func (s *DCRService) RegisterClient(ctx context.Context, req input.RegisterClien
 
 	// Apply RFC 7591 defaults.
 	params := client.CreateParams{
-		Name:                    req.ClientName,
-		RedirectURIs:            req.RedirectURIs,
-		GrantTypes:              req.GrantTypes,
-		ResponseTypes:           req.ResponseTypes,
-		TokenEndpointAuthMethod: req.TokenEndpointAuthMethod,
-		RegistrationSource:      client.SourceDCR,
-		IsAgent:                 req.Agent,
-		AgentDescription:        req.AgentDescription,
+		Name:                        req.ClientName,
+		RedirectURIs:                req.RedirectURIs,
+		GrantTypes:                  req.GrantTypes,
+		ResponseTypes:               req.ResponseTypes,
+		TokenEndpointAuthMethod:     req.TokenEndpointAuthMethod,
+		JWKSURI:                     req.JWKSURI,
+		TokenEndpointAuthSigningAlg: req.TokenEndpointAuthSigningAlg,
+		RegistrationSource:          client.SourceDCR,
+		IsAgent:                     req.Agent,
+		AgentDescription:            req.AgentDescription,
+	}
+	if params.TokenEndpointAuthMethod == "" {
+		for _, method := range req.TokenEndpointAuthMethodsSupported {
+			if method == "private_key_jwt" {
+				params.TokenEndpointAuthMethod = method
+				break
+			}
+		}
 	}
 	params.Defaults()
 
@@ -116,23 +126,25 @@ func (s *DCRService) RegisterClient(ctx context.Context, req input.RegisterClien
 	// Generate client_id.
 	now := time.Now().UTC()
 	c := &client.Client{
-		ID:                      crypto.GenerateClientID(),
-		Name:                    params.Name,
-		RedirectURIs:            params.RedirectURIs,
-		GrantTypes:              params.GrantTypes,
-		ResponseTypes:           params.ResponseTypes,
-		TokenEndpointAuthMethod: params.TokenEndpointAuthMethod,
-		Status:                  client.StatusActive,
-		RegistrationSource:      client.SourceDCR,
-		IsAgent:                 params.IsAgent,
-		AgentDescription:        params.AgentDescription,
-		IssuedAt:                now,
-		UpdatedAt:               now,
+		ID:                          crypto.GenerateClientID(),
+		Name:                        params.Name,
+		RedirectURIs:                params.RedirectURIs,
+		GrantTypes:                  params.GrantTypes,
+		ResponseTypes:               params.ResponseTypes,
+		TokenEndpointAuthMethod:     params.TokenEndpointAuthMethod,
+		JWKSURI:                     params.JWKSURI,
+		TokenEndpointAuthSigningAlg: params.TokenEndpointAuthSigningAlg,
+		Status:                      client.StatusActive,
+		RegistrationSource:          client.SourceDCR,
+		IsAgent:                     params.IsAgent,
+		AgentDescription:            params.AgentDescription,
+		IssuedAt:                    now,
+		UpdatedAt:                   now,
 	}
 
 	// Handle confidential client (secret generation).
 	var plainSecret string
-	if params.TokenEndpointAuthMethod != "none" {
+	if c.RequiresClientSecret() {
 		plainSecret = crypto.GenerateClientSecret()
 		hash, err := crypto.HashClientSecret(plainSecret)
 		if err != nil {
@@ -168,15 +180,17 @@ func (s *DCRService) RegisterClient(ctx context.Context, req input.RegisterClien
 	}
 
 	resp := &input.RegisterClientResponse{
-		ClientID:                c.ID,
-		ClientIDIssuedAt:        now.Unix(),
-		RedirectURIs:            c.RedirectURIs,
-		ClientName:              c.Name,
-		GrantTypes:              c.GrantTypes,
-		ResponseTypes:           c.ResponseTypes,
-		TokenEndpointAuthMethod: c.TokenEndpointAuthMethod,
-		Agent:                   c.IsAgent,
-		AgentDescription:        c.AgentDescription,
+		ClientID:                    c.ID,
+		ClientIDIssuedAt:            now.Unix(),
+		RedirectURIs:                c.RedirectURIs,
+		ClientName:                  c.Name,
+		GrantTypes:                  c.GrantTypes,
+		ResponseTypes:               c.ResponseTypes,
+		TokenEndpointAuthMethod:     c.TokenEndpointAuthMethod,
+		JWKSURI:                     c.JWKSURI,
+		TokenEndpointAuthSigningAlg: c.TokenEndpointAuthSigningAlg,
+		Agent:                       c.IsAgent,
+		AgentDescription:            c.AgentDescription,
 	}
 
 	if plainSecret != "" {
